@@ -35,6 +35,7 @@ export default function Restaurants() {
 
   const [restaurants, setRestaurants] = useState();
   const [sortBy, setSortBy] = useState('');
+  const [cuisineFilter, setCuisineFilter] = useState('');
 
   useEffect(() => {
     async function fetchRestaurants() {
@@ -47,13 +48,24 @@ export default function Restaurants() {
   const handleSortBy = async event => {
     const queryParam = event.target.value;
     setSortBy(queryParam);
-    console.log(`HERE: ${sortBy}`);
-    const response = await axios.get(`/api/restaurants?sort_by=${queryParam}`);
-
-    if (response) {
-      setRestaurants(response.data.restaurants);
-    }
   };
+
+  const handleCuisineFilter = async event => {
+    const queryParam = event.target.value;
+    setCuisineFilter(queryParam);
+  };
+
+  useEffect(() => {
+    async function fetch() {
+      console.log(`SORT: ${sortBy} and CUISINE: ${cuisineFilter}`);
+      const response = await axios.get(
+        `/api/restaurants?sort_by=${sortBy}&cuisines=${cuisineFilter}`
+      );
+      setRestaurants(response.data.restaurants);
+      return;
+    }
+    fetch();
+  }, [sortBy, cuisineFilter]);
 
   if (restaurants) {
     return (
@@ -69,6 +81,19 @@ export default function Restaurants() {
             <MenuItem value='aggregate_rating'>Rating</MenuItem>
             <MenuItem value='votes'>Votes</MenuItem>
             <MenuItem value='average_cost_for_two'>Average Cost</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl className={classes.formControl}>
+          <InputLabel id='demo-simple-select-label'>Cuisine</InputLabel>
+          <Select
+            labelId='demo-simple-select-label'
+            id='demo-simple-select'
+            value={cuisineFilter}
+            onChange={handleCuisineFilter}
+          >
+            <MenuItem value='indian'>Indian</MenuItem>
+            <MenuItem value='japanese'>Japanese</MenuItem>
+            <MenuItem value='french'>French</MenuItem>
           </Select>
         </FormControl>
         <h1>RESTAURANT LIST</h1>
